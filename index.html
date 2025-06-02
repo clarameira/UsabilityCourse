@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>CursoTest - Plataforma de Cursos</title>
+  <style>
+    :root {
+      --azul: #4A90E2;
+      --azul-claro: #e6f0fa;
+      --cinza-claro: #f5f5f5;
+      --cinza: #ddd;
+      --sombra: 0 4px 10px rgba(0, 0, 0, 0.1);
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--cinza-claro);
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 30px;
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--sombra);
+    }
+
+    h1, h2, h3 { color: var(--azul); }
+
+    label {
+      margin-top: 15px;
+      display: block;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--cinza);
+      border-radius: var(--radius);
+      margin-top: 5px;
+    }
+
+    button {
+      background-color: var(--azul);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 20px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover { background-color: #357ABD; }
+
+    .hidden { display: none; }
+
+    .curso {
+      background-color: var(--azul-claro);
+      padding: 10px;
+      border-radius: var(--radius);
+      margin-top: 10px;
+    }
+
+    .mensagem {
+      margin-top: 30px;
+      padding: 15px;
+      background-color: #d9edf7;
+      border-left: 5px solid #31708f;
+      border-radius: var(--radius);
+      font-weight: bold;
+      color: #31708f;
+    }
+
+    #erroLogin { color: red; margin-top: 10px; }
+
+    .favorito {
+      background-color: #fff3cd;
+      border-left: 5px solid #856404;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: var(--radius);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>CursoTest</h1>
+
+    <!-- Login -->
+    <div id="loginForm">
+      <label for="login">Login:</label>
+      <input type="text" id="login" placeholder="Digite seu login">
+
+      <label for="senha">Senha:</label>
+      <input type="password" id="senha" placeholder="Digite sua senha">
+
+      <button onclick="fazerLogin()">Entrar</button>
+      <div id="erroLogin"></div>
+    </div>
+
+    <!-- Sistema -->
+    <div id="sistema" class="hidden">
+      <h2>Bem-vindo(a), <span id="usuarioNome"></span>!</h2>
+      <button onclick="fazerLogout()">Sair</button>
+
+      <label for="busca">Buscar curso:</label>
+      <input type="text" id="busca" oninput="buscarCursos()" placeholder="Digite o nome do curso...">
+
+      <div id="cursosDisponiveis"></div>
+
+      <!-- Favoritos -->
+      <h3>Favoritos</h3>
+      <div id="listaFavoritos"></div>
+
+      <!-- Mensagem -->
+      <div class="mensagem" id="mensagemCurso"></div>
+
+      <!-- Histórico -->
+      <h3>Cursos Concluídos</h3>
+      <div id="historicoCursos" class="mensagem"></div>
+    </div>
+  </div>
+
+  <script>
+    const usuarioValido = { login: "aluno", senha: "curso123" };
+    let cursos = [
+      "Introdução ao HTML", "JavaScript para Iniciantes",
+      "Python Básico", "Banco de Dados com SQL", "Git e GitHub"
+    ];
+    let cursosMatriculados = [];
+    let favoritos = [];
+    let historico = [];
+
+    function fazerLogin() {
+      const login = document.getElementById("login").value;
+      const senha = document.getElementById("senha").value;
+      const erro = document.getElementById("erroLogin");
+
+      if (login === usuarioValido.login && senha === usuarioValido.senha) {
+        document.getElementById("loginForm").classList.add("hidden");
+        document.getElementById("sistema").classList.remove("hidden");
+        document.getElementById("usuarioNome").textContent = login;
+        buscarCursos();
+        renderizarFavoritos();
+        renderizarHistorico();
+      } else {
+        erro.textContent = "Login ou senha inválidos.";
+      }
+    }
+
+    function fazerLogout() {
+      document.getElementById("sistema").classList.add("hidden");
+      document.getElementById("loginForm").classList.remove("hidden");
+      document.getElementById("login").value = "";
+      document.getElementById("senha").value = "";
+      document.getElementById("erroLogin").textContent = "";
+    }
+
+    function buscarCursos() {
+      const busca = document.getElementById("busca").value.toLowerCase();
+      const divCursos = document.getElementById("cursosDisponiveis");
+      divCursos.innerHTML = "";
+
+      const encontrados = cursos.filter(curso =>
+        curso.toLowerCase().includes(busca) && !cursosMatriculados.includes(curso)
+      );
+
+      if (encontrados.length === 0) {
+        divCursos.innerHTML = "<p>Nenhum curso disponível encontrado.</p>";
+        return;
+      }
+
+      encontrados.forEach(curso => {
+        const div = document.createElement("div");
+        div.className = "curso";
+        div.innerHTML = `
+          <strong>${curso}</strong><br>
+          <button onclick="matricularCurso('${curso}')">Matricular</button>
+          <button onclick="adicionarFavorito('${curso}')">Favoritar</button>
+        `;
+        divCursos.appendChild(div);
+      });
+    }
+
+    function matricularCurso(curso) {
+      cursosMatriculados.push(curso);
+      historico.push(curso);
+      document.getElementById("mensagemCurso").innerHTML =
+        `Inscrição confirmada no curso <strong>${curso}</strong>!`;
+      buscarCursos();
+      renderizarHistorico();
+    }
+
+    function adicionarFavorito(curso) {
+      if (!favoritos.includes(curso)) {
+        favoritos.push(curso);
+        renderizarFavoritos();
+      }
+    }
+
+    function removerFavorito(curso) {
+      favoritos = favoritos.filter(f => f !== curso);
+      renderizarFavoritos();
+    }
+
+    function renderizarFavoritos() {
+      const lista = document.getElementById("listaFavoritos");
+      lista.innerHTML = "";
+      favoritos.forEach(curso => {
+        const div = document.createElement("div");
+        div.className = "favorito";
+        div.innerHTML = `
+          ${curso}
+          <button onclick="removerFavorito('${curso}')">Remover</button>
+        `;
+        lista.appendChild(div);
+      });
+    }
+
+    function renderizarHistorico() {
+      const historicoDiv = document.getElementById("historicoCursos");
+      historicoDiv.innerHTML = historico.map(c =>
+        `<p>${c}</p>`
+      ).join("");
+    }
+  </script>
+</body>
+</html>
