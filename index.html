@@ -4,233 +4,171 @@
   <meta charset="UTF-8">
   <title>CursoTest - Plataforma de Cursos</title>
   <style>
-    :root {
-      --roxo: #6a0dad;
-      --roxo-claro: #f0e6ff;
-      --cinza-claro: #f8f8f8;
-      --cinza: #ccc;
-      --sombra: 0 4px 8px rgba(0, 0, 0, 0.1);
-      --radius: 8px;
-      --contraste-bg: #000;
-      --contraste-texto: #fff;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: var(--cinza-claro);
+      font-family: Arial, sans-serif;
+      background-color: #f3e8ff;
       margin: 0;
       padding: 0;
-      transition: background-color 0.3s, color 0.3s;
-    }
-
-    .contraste {
-      background-color: var(--contraste-bg) !important;
-      color: var(--contraste-texto) !important;
     }
 
     .container {
       max-width: 800px;
-      margin: 40px auto;
+      margin: 50px auto;
       padding: 30px;
-      background: white;
-      border-radius: var(--radius);
-      box-shadow: var(--sombra);
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
-    h1, h2, h3 {
-      color: var(--roxo);
+    h1, h2 {
+      color: #7b2cbf;
     }
 
     label {
-      margin-top: 15px;
-      display: block;
       font-weight: bold;
+      display: block;
+      margin-top: 20px;
     }
 
     input, select {
       width: 100%;
       padding: 10px;
-      border: 1px solid var(--cinza);
-      border-radius: var(--radius);
       margin-top: 5px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
     }
 
     button {
-      background-color: var(--roxo);
+      margin-top: 20px;
+      padding: 10px 15px;
+      background-color: #9d4edd;
       color: white;
       border: none;
-      padding: 10px 20px;
-      margin-top: 15px;
-      border-radius: var(--radius);
+      border-radius: 8px;
       cursor: pointer;
-      transition: background 0.3s ease;
     }
 
     button:hover {
-      background-color: #4b0082;
+      background-color: #7b2cbf;
+    }
+
+    .curso {
+      background: #f0dfff;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 10px;
     }
 
     .hidden {
       display: none;
     }
 
-    .mensagem {
-      margin-top: 20px;
-      padding: 10px;
-      border-radius: var(--radius);
-    }
-
-    .sucesso {
-      background-color: #d4edda;
-      color: #155724;
+    #contraste {
+      background-color: #222;
+      /* Defeito: cor do texto não muda */
     }
 
     .erro {
-      background-color: #f8d7da;
-      color: #721c24;
+      color: red;
     }
   </style>
 </head>
 <body>
-  <div class="container" id="mainContainer">
+  <div class="container" id="container">
     <h1>CursoTest</h1>
 
-    <button onclick="alternarContraste()">Ativar/Desativar Contraste</button>
-
+    <!-- Login -->
     <div id="loginForm">
-      <label for="login">Login:</label>
-      <input type="text" id="login" placeholder="Digite seu login">
+      <label for="usuario">Usuário:</label>
+      <input type="text" id="usuario">
 
       <label for="senha">Senha:</label>
-      <input type="password" id="senha" placeholder="Digite sua senha">
+      <input type="password" id="senha">
 
       <button onclick="fazerLogin()">Entrar</button>
-      <div id="erroLogin" class="mensagem erro hidden"></div>
+      <p class="erro" id="erroLogin"></p>
     </div>
 
+    <!-- Sistema -->
     <div id="sistema" class="hidden">
-      <h2>Bem-vindo, <span id="usuarioNome"></span>!</h2>
-      <button onclick="fazerLogout()">Sair</button>
+      <h2>Bem-vindo, <span id="nomeUsuario"></span>!</h2>
+      <button onclick="logout()">Sair</button>
+      <button onclick="alternarContraste()">Alto Contraste</button>
 
-      <label for="buscaCurso">Buscar curso:</label>
-      <input type="text" id="buscaCurso" oninput="sugerirCursos()" placeholder="Digite o nome do curso...">
-      <ul id="sugestoes"></ul>
+      <label for="buscaCurso">Buscar Curso:</label>
+      <input type="text" id="buscaCurso" oninput="sugerirCursos()">
+      <div id="sugestoes"></div>
 
-      <h3>Cursos Concluídos</h3>
-      <ul id="cursosConcluidos"></ul>
+      <div id="cursosList"></div>
 
-      <h3>Avaliar Curso</h3>
-      <label for="cursoAvaliar">Curso:</label>
-      <select id="cursoAvaliar"></select>
-
-      <label for="nota">Nota (1 a 5):</label>
-      <input type="number" id="nota" min="1" max="5">
-
+      <label for="avaliacao">Avalie um curso (1 a 5):</label>
+      <input type="number" id="avaliacao">
       <button onclick="avaliarCurso()">Enviar Avaliação</button>
-      <div id="avaliacoes"></div>
+      <p id="mensagemAvaliacao"></p>
     </div>
   </div>
 
   <script>
-    const usuario = { login: "testador", senha: "teste" };
-    const cursos = ["HTML Básico", "CSS Avançado", "JavaScript Intermediário", "Python para Iniciantes", "Testes de Software"];
-    let cursosConcluidos = [];
-    let avaliacoes = [];
-    let inatividadeTimer;
+    const usuarioCorreto = "aluno";
+    const senhaCorreta = "123";
+
+    const cursos = ["HTML Básico", "CSS Avançado", "JavaScript", "Python", "Java", "React"];
+    let inscricoes = [];
 
     function fazerLogin() {
-      const login = document.getElementById("login").value;
+      const user = document.getElementById("usuario").value;
       const senha = document.getElementById("senha").value;
-      const erro = document.getElementById("erroLogin");
 
-      if (login === usuario.login && senha === usuario.senha) {
+      if (user === usuarioCorreto) {
         document.getElementById("loginForm").classList.add("hidden");
         document.getElementById("sistema").classList.remove("hidden");
-        document.getElementById("usuarioNome").textContent = login;
-        cursosConcluidos = cursos.slice(0, 3);
-        atualizarCursos();
-        atualizarAvaliacoes();
-        iniciarTimerInatividade();
+        document.getElementById("nomeUsuario").textContent = user;
+        exibirCursos();
       } else {
-        erro.textContent = "Login ou senha incorretos.";
-        erro.classList.remove("hidden");
+        document.getElementById("erroLogin").textContent = "Usuário ou senha incorretos.";
       }
     }
 
-    function fazerLogout() {
-      if (confirm("Deseja realmente sair?")) {
-        document.getElementById("sistema").classList.add("hidden");
-        document.getElementById("loginForm").classList.remove("hidden");
-        document.getElementById("login").value = "";
-        document.getElementById("senha").value = "";
-        clearTimeout(inatividadeTimer);
-      }
+    function logout() {
+      document.getElementById("sistema").classList.add("hidden");
+      document.getElementById("loginForm").classList.remove("hidden");
+      document.getElementById("usuario").value = "";
+      document.getElementById("senha").value = "";
+      document.getElementById("erroLogin").textContent = "";
     }
 
-    function atualizarCursos() {
-      const ul = document.getElementById("cursosConcluidos");
-      ul.innerHTML = "";
-      cursosConcluidos.forEach(curso => {
-        const li = document.createElement("li");
-        li.textContent = curso;
-        ul.appendChild(li);
+    function exibirCursos() {
+      const div = document.getElementById("cursosList");
+      div.innerHTML = "";
+      cursos.forEach(curso => {
+        div.innerHTML += `
+          <div class="curso">
+            <strong>${curso}</strong><br>
+            <button onclick="inscreverCurso('${curso}')">Inscrever-se</button>
+          </div>`;
       });
-    }
-
-    function atualizarAvaliacoes() {
-      const select = document.getElementById("cursoAvaliar");
-      select.innerHTML = "";
-      cursosConcluidos.forEach(curso => {
-        const opt = document.createElement("option");
-        opt.value = curso;
-        opt.textContent = curso;
-        select.appendChild(opt);
-      });
-    }
-
-    function avaliarCurso() {
-      const curso = document.getElementById("cursoAvaliar").value;
-      const nota = parseInt(document.getElementById("nota").value);
-      const output = document.getElementById("avaliacoes");
-
-      if (!curso || isNaN(nota) || nota < 1 || nota > 5) {
-        alert("Selecione um curso e uma nota válida entre 1 e 5.");
-        return;
-      }
-
-      avaliacoes.push({ curso, nota });
-      output.innerHTML = `<p>Você avaliou <strong>${curso}</strong> com nota <strong>${nota}</strong>/5.</p>`;
-      document.getElementById("nota").value = "";
     }
 
     function sugerirCursos() {
-      const entrada = document.getElementById("buscaCurso").value.toLowerCase();
-      const sugestoes = document.getElementById("sugestoes");
-      sugestoes.innerHTML = "";
+      const busca = document.getElementById("buscaCurso").value;
+      const sugestoes = cursos.filter(c => c.includes(busca)); 
+      const div = document.getElementById("sugestoes");
+      div.innerHTML = sugestoes.map(c => `<p>${c}</p>`).join("");
+    }
 
-      if (!entrada) return;
+    function inscreverCurso(curso) {
+      inscricoes.push(curso);
+      alert(`Inscrição confirmada em: ${curso}`);
+    }
 
-      cursos.filter(c => c.toLowerCase().includes(entrada)).forEach(sugestao => {
-        const li = document.createElement("li");
-        li.textContent = sugestao;
-        sugestoes.appendChild(li);
-      });
+    function avaliarCurso() {
+      const nota = parseInt(document.getElementById("avaliacao").value);
+      document.getElementById("mensagemAvaliacao").textContent = `Avaliação enviada: ${nota}`;
     }
 
     function alternarContraste() {
-      document.body.classList.toggle("contraste");
-      document.getElementById("mainContainer").classList.toggle("contraste");
-    }
-
-    function iniciarTimerInatividade() {
-      document.onmousemove = document.onkeypress = () => {
-        clearTimeout(inatividadeTimer);
-        inatividadeTimer = setTimeout(() => alert("Você está inativo há um tempo. Deseja continuar?"), 60000);
-      };
+      const container = document.getElementById("container");
+      container.id = container.id === "contraste" ? "container" : "contraste";
     }
   </script>
 </body>
