@@ -5,88 +5,113 @@
   <title>CursoTest - Plataforma de Cursos</title>
   <style>
     :root {
-      --azul: #4A90E2;
-      --azul-claro: #e6f0fa;
-      --cinza-claro: #f5f5f5;
-      --cinza: #ddd;
-      --sombra: 0 4px 10px rgba(0, 0, 0, 0.1);
-      --radius: 10px;
+      --fundo: #1E1E2F;
+      --painel: #2A2A40;
+      --texto: #FFFFFF;
+      --primaria: #9C27B0;
+      --primaria-hover: #7B1FA2;
+      --sucesso: #00E676;
+      --erro: #FF5252;
+      --favorito-bg: #333348;
+      --favorito-borda: #FFD700;
+      --radius: 12px;
+      --sombra: 0 0 10px rgba(0, 255, 100, 0.3);
+      --fonte: 'Segoe UI', sans-serif;
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--cinza-claro);
-      margin: 0;
-      padding: 0;
+      font-family: var(--fonte);
+      background-color: var(--fundo);
+      color: var(--texto);
+      display: flex;
+      justify-content: center;
+      padding: 40px;
     }
 
     .container {
+      width: 90%;
       max-width: 800px;
-      margin: 50px auto;
-      padding: 30px;
-      background: white;
+      background-color: var(--painel);
       border-radius: var(--radius);
+      padding: 30px;
       box-shadow: var(--sombra);
     }
 
-    h1, h2, h3 { color: var(--azul); }
+    h1, h2, h3 {
+      color: var(--sucesso);
+      margin-bottom: 20px;
+    }
 
     label {
-      margin-top: 15px;
       display: block;
+      margin-top: 20px;
       font-weight: bold;
     }
 
-    input, select {
+    input {
       width: 100%;
-      padding: 10px;
-      border: 1px solid var(--cinza);
+      padding: 12px;
+      border: none;
       border-radius: var(--radius);
-      margin-top: 5px;
+      margin-top: 6px;
+      background-color: #3B3B50;
+      color: var(--texto);
     }
 
     button {
-      background-color: var(--azul);
+      margin-top: 20px;
+      padding: 12px 20px;
+      background-color: var(--primaria);
       color: white;
       border: none;
-      padding: 10px 20px;
-      margin-top: 20px;
       border-radius: var(--radius);
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
-    button:hover { background-color: #357ABD; }
+    button:hover {
+      background-color: var(--primaria-hover);
+      transform: scale(1.03);
+    }
 
     .hidden { display: none; }
 
     .curso {
-      background-color: var(--azul-claro);
-      padding: 10px;
+      background-color: #3A3A5C;
+      padding: 15px;
       border-radius: var(--radius);
-      margin-top: 10px;
+      margin-top: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
 
     .mensagem {
-      margin-top: 30px;
+      margin-top: 25px;
       padding: 15px;
-      background-color: #d9edf7;
-      border-left: 5px solid #31708f;
+      background-color: #004d40;
+      border-left: 6px solid var(--sucesso);
       border-radius: var(--radius);
+      color: #C8FACC;
       font-weight: bold;
-      color: #31708f;
     }
 
-    #erroLogin { color: red; margin-top: 10px; }
+    #erroLogin {
+      margin-top: 10px;
+      color: var(--erro);
+      font-weight: bold;
+    }
 
     .favorito {
-      background-color: #fff3cd;
-      border-left: 5px solid #856404;
-      margin-top: 10px;
+      background-color: var(--favorito-bg);
+      border-left: 5px solid var(--favorito-borda);
       padding: 10px;
+      margin-top: 10px;
       border-radius: var(--radius);
+    }
+
+    input::placeholder {
+      color: #ccc;
     }
   </style>
 </head>
