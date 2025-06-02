@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>CursoTest - Plataforma de Cursos</title>
   <style>
     :root {
@@ -33,7 +33,7 @@
     }
 
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 40px auto;
       padding: 30px;
       background: white;
@@ -93,6 +93,76 @@
       background-color: #f8d7da;
       color: #721c24;
     }
+
+    /* NOVO: cards de cursos */
+    #listaCursos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .curso-card {
+      background: var(--roxo-claro);
+      border-radius: var(--radius);
+      box-shadow: var(--sombra);
+      padding: 15px;
+      width: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .curso-titulo {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: var(--roxo);
+    }
+
+    .curso-botoes {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .favorito {
+      background-color: #ffcc00;
+      color: #333;
+      border-radius: var(--radius);
+      padding: 5px 10px;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s;
+    }
+
+    .favorito.favoritado {
+      background-color: #ffaa00;
+      font-weight: bold;
+    }
+
+    .matricular {
+      background-color: var(--roxo);
+      color: white;
+      border-radius: var(--radius);
+      padding: 5px 10px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .matricular:hover {
+      background-color: #4b0082;
+    }
+
+    #cursosConcluidos {
+      margin-top: 15px;
+      list-style: inside square;
+    }
+
+    #avaliacoes p {
+      margin: 5px 0;
+    }
   </style>
 </head>
 <body>
@@ -103,10 +173,10 @@
 
     <div id="loginForm">
       <label for="login">Login:</label>
-      <input type="text" id="login" placeholder="Digite seu login">
+      <input type="text" id="login" placeholder="Digite seu login" />
 
       <label for="senha">Senha:</label>
-      <input type="password" id="senha" placeholder="Digite sua senha">
+      <input type="password" id="senha" placeholder="Digite sua senha" />
 
       <button onclick="fazerLogin()">Entrar</button>
       <div id="erroLogin" class="mensagem erro hidden"></div>
@@ -116,9 +186,8 @@
       <h2>Bem-vindo, <span id="usuarioNome"></span>!</h2>
       <button onclick="fazerLogout()">Sair</button>
 
-      <label for="buscaCurso">Buscar curso:</label>
-      <input type="text" id="buscaCurso" oninput="sugerirCursos()" placeholder="Digite o nome do curso...">
-      <ul id="sugestoes"></ul>
+      <h3>Lista de Cursos</h3>
+      <div id="listaCursos"></div>
 
       <h3>Cursos Concluídos</h3>
       <ul id="cursosConcluidos"></ul>
@@ -128,7 +197,7 @@
       <select id="cursoAvaliar"></select>
 
       <label for="nota">Nota (1 a 5):</label>
-      <input type="number" id="nota" min="1" max="5">
+      <input type="number" id="nota" min="1" max="5" />
 
       <button onclick="avaliarCurso()">Enviar Avaliação</button>
       <div id="avaliacoes"></div>
@@ -137,9 +206,17 @@
 
   <script>
     const usuario = { login: "testador", senha: "teste" };
-    const cursos = ["HTML Básico", "CSS Avançado", "JavaScript Intermediário", "Python para Iniciantes", "Testes de Software"];
+    const cursos = [
+      "HTML Básico",
+      "CSS Avançado",
+      "JavaScript Intermediário",
+      "Python para Iniciantes",
+      "Testes de Software",
+    ];
+
     let cursosConcluidos = [];
     let avaliacoes = [];
+    let favoritos = new Set();
     let inatividadeTimer;
 
     function fazerLogin() {
@@ -151,9 +228,11 @@
         document.getElementById("loginForm").classList.add("hidden");
         document.getElementById("sistema").classList.remove("hidden");
         document.getElementById("usuarioNome").textContent = login;
-        cursosConcluidos = cursos.slice(0, 3);
-        atualizarCursos();
+
+        cursosConcluidos = []; 
+        atualizarCursosConcluidos();
         atualizarAvaliacoes();
+        popularCursos();
         iniciarTimerInatividade();
       } else {
         erro.textContent = "Login ou senha incorretos.";
@@ -171,7 +250,56 @@
       }
     }
 
-    function atualizarCursos() {
+    function popularCursos() {
+      const container = document.getElementById("listaCursos");
+      container.innerHTML = "";
+
+      cursos.forEach(curso => {
+        const card = document.createElement("div");
+        card.className = "curso-card";
+
+        const titulo = document.createElement("div");
+        titulo.className = "curso-titulo";
+        titulo.textContent = curso;
+
+        const botoes = document.createElement("div");
+        botoes.className = "curso-botoes";
+
+        // Botão favoritar
+        const btnFavorito = document.createElement("button");
+        btnFavorito.className = "favorito";
+        btnFavorito.textContent = favoritos.has(curso) ? "★ Favoritado" : "☆ Favoritar";
+        btnFavorito.onclick = () => {
+          if (favoritos.has(curso)) {
+            favoritos.delete(curso);
+          } else {
+            favoritos.add(curso);
+          }
+          popularCursos(); 
+        };
+
+  
+        const btnMatricular = document.createElement("button");
+        btnMatricular.className = "matricular";
+        btnMatricular.textContent = "Matricular";
+        btnMatricular.onclick = () => {
+        
+          cursosConcluidos.push(curso);
+          atualizarCursosConcluidos();
+          atualizarAvaliacoes();
+          alert(`Você se matriculou no curso: ${curso}`);
+        };
+
+        botoes.appendChild(btnFavorito);
+        botoes.appendChild(btnMatricular);
+
+        card.appendChild(titulo);
+        card.appendChild(botoes);
+        container.appendChild(card);
+      });
+    }
+
+    function atualizarCursosConcluidos() {
       const ul = document.getElementById("cursosConcluidos");
       ul.innerHTML = "";
       cursosConcluidos.forEach(curso => {
@@ -197,28 +325,14 @@
       const nota = parseInt(document.getElementById("nota").value);
       const output = document.getElementById("avaliacoes");
 
-      if (!curso || isNaN(nota) || nota < 1 || nota > 5) {
+      if (!curso || isNaN(nota)) {
         alert("Selecione um curso e uma nota válida entre 1 e 5.");
         return;
       }
 
       avaliacoes.push({ curso, nota });
-      output.innerHTML = `<p>Você avaliou <strong>${curso}</strong> com nota <strong>${nota}</strong>/5.</p>`;
+      output.innerHTML += `<p>Você avaliou <strong>${curso}</strong> com nota <strong>${nota}</strong>/5.</p>`;
       document.getElementById("nota").value = "";
-    }
-
-    function sugerirCursos() {
-      const entrada = document.getElementById("buscaCurso").value.toLowerCase();
-      const sugestoes = document.getElementById("sugestoes");
-      sugestoes.innerHTML = "";
-
-      if (!entrada) return;
-
-      cursos.filter(c => c.toLowerCase().includes(entrada)).forEach(sugestao => {
-        const li = document.createElement("li");
-        li.textContent = sugestao;
-        sugestoes.appendChild(li);
-      });
     }
 
     function alternarContraste() {
