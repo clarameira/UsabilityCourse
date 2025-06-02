@@ -347,16 +347,16 @@
       caixa.value = cursosConcluidos.join("\n");
     }
 
-    function atualizarAvaliacoes() {
-      const select = document.getElementById("cursoAvaliar");
-      select.innerHTML = "";
-      cursosConcluidos.forEach((curso) => {
-        const opt = document.createElement("option");
-        opt.value = curso;
-        opt.textContent = curso;
-        select.appendChild(opt);
-      });
-    }
+ function atualizarAvaliacoes() {
+  const select = document.getElementById("cursoAvaliar");
+  select.innerHTML = "";
+  cursos.forEach((curso) => {
+    const opt = document.createElement("option");
+    opt.value = curso;
+    opt.textContent = curso;
+    select.appendChild(opt);
+  });
+}
 
     function avaliarCurso() {
       const curso = document.getElementById("cursoAvaliar").value;
